@@ -40,15 +40,28 @@ exports.getProjects = async (req, res) => {
         if (req.userRole === 'Admin') {
             projects = await Project.findAll({ include });
         } else {
+            const owned = await Project.findAll({
+                where: { ownerId: req.userId },
+                attributes: ['id'],
+                raw: true
+            });
+
+            const memberships = await db.ProjectMember.findAll({
+                where: { userId: req.userId },
+                attributes: ['projectId'],
+                raw: true
+            });
+
+            const allIds = [
+                ...owned.map(p => p.id),
+                ...memberships.map(m => m.projectId)
+            ];
+
+            const uniqueIds = [...new Set(allIds.filter(id => id != null))];
+
             projects = await Project.findAll({
-                include,
-                where: {
-                    [db.Sequelize.Op.or]: [
-                        { ownerId: req.userId },
-                        { '$members.id$': req.userId }
-                    ]
-                },
-                subQuery: false
+                where: { id: { [db.Sequelize.Op.in]: uniqueIds } },
+                include
             });
         }
         res.status(200).json({ message: 'Projeler başarıyla getirildi.', data: projects });

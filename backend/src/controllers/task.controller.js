@@ -64,6 +64,10 @@ exports.createTask = async (req, res) => {
         startDate = validateDate(startDate);
         dueDate = validateDate(dueDate);
 
+        if (startDate && dueDate && new Date(dueDate) < new Date(startDate)) {
+            return res.status(400).json({ message: 'Bitiş tarihi başlangıç tarihinden önce olamaz.', data: null });
+        }
+
         if (!title) {
             return res.status(400).json({ message: 'Görev başlığı zorunludur.', data: null });
         }
@@ -162,6 +166,12 @@ exports.updateTask = async (req, res) => {
             return res.status(400).json({ message: 'Geçersiz öncelik değeri.', data: null });
         }
 
+        const finalStart = startDate !== undefined ? startDate : task.startDate;
+        const finalDue = dueDate !== undefined ? dueDate : task.dueDate;
+        if (finalStart && finalDue && new Date(finalDue) < new Date(finalStart)) {
+            return res.status(400).json({ message: 'Bitiş tarihi başlangıç tarihinden önce olamaz.', data: null });
+        }
+
         await task.update({
             title: title || task.title,
             description: description !== undefined ? description : task.description,
@@ -251,17 +261,33 @@ exports.deleteTask = async (req, res) => {
 
 exports.getMyTasks = async (req, res) => {
     try {
+        let where = {};
+
+        if (req.userRole !== 'Admin') {
+            const owned = await Project.findAll({ where: { ownerId: req.userId }, attributes: ['id'], raw: true });
+            const memberships = await db.ProjectMember.findAll({ where: { userId: req.userId }, attributes: ['projectId'], raw: true });
+            const accessibleProjectIds = [...new Set([...owned.map(p => p.id), ...memberships.map(m => m.projectId)])].filter(id => id != null);
+
+            where = {
+                [db.Sequelize.Op.or]: [
+                    { assignedUserId: req.userId },
+                    { creatorId: req.userId },
+                    { projectId: { [db.Sequelize.Op.in]: accessibleProjectIds } }
+                ]
+            };
+        }
+
         const tasks = await Task.findAll({
-            where: { assignedUserId: req.userId },
+            where,
             include: [
-                { model: Project, attributes: ['name'] },
+                { model: Project, attributes: ['id', 'name', 'ownerId'] },
                 { model: User, as: 'assignedUser', attributes: ['username', 'avatarUrl'] }
             ]
         });
 
         await checkAndMarkOverdue(tasks);
 
-        res.status(200).json({ message: 'Görevleriniz başarıyla getirildi.', data: tasks });
+        res.status(200).json({ message: 'Görevler başarıyla getirildi.', data: tasks });
     } catch (error) {
         res.status(500).json({ message: error.message, data: null });
     }

@@ -42,6 +42,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import socketService from '../services/socket.service';
 
 
 const StatusDropdown = memo(({ currentStatus, onStatusChange, onOpenChange }) => {
@@ -321,9 +322,11 @@ const Dashboard = () => {
         try {
             setLoading(true);
             const [taskData, projectData, userData] = await Promise.all([
-                taskService.getMyTasks(),
-                projectService.getProjects(),
-                authService.getAllUsers()
+                taskService.getMyTasks().catch(err => { console.error('Tasks fetch error:', err); return []; }),
+                projectService.getProjects().catch(err => { console.error('Projects fetch error:', err); return []; }),
+                user.role === 'Admin'
+                    ? authService.getAllUsers().catch(() => [])
+                    : Promise.resolve([])
             ]);
             setTasks(taskData);
             setProjects(projectData);
@@ -344,6 +347,12 @@ const Dashboard = () => {
     }, [fetchData]);
 
     useEffect(() => {
+        socketService.onStatsUpdate(() => {
+            fetchData();
+        });
+    }, [fetchData]);
+
+    useEffect(() => {
         if (user?.id && !newTask.assignedUserId) {
             setNewTask(prev => ({ ...prev, assignedUserId: user.id }));
         }
@@ -358,6 +367,10 @@ const Dashboard = () => {
             const taskToCreate = { ...newTask };
             if (user.role !== 'Admin') taskToCreate.assignedUserId = user.id;
             if (!taskToCreate.assignedUserId) return showToast('Lütfen bir kullanıcı seçin.', 'error');
+
+            if (taskToCreate.startDate && taskToCreate.dueDate && new Date(taskToCreate.dueDate) < new Date(taskToCreate.startDate)) {
+                return showToast('Bitiş tarihi başlangıç tarihinden önce olamaz.', 'error');
+            }
 
             setIsSavingTask(true);
             await taskService.createTask(taskToCreate);
@@ -413,6 +426,11 @@ const Dashboard = () => {
 
     const handleUpdateTask = async (e) => {
         e.preventDefault();
+
+        if (editingTask.startDate && editingTask.dueDate && new Date(editingTask.dueDate) < new Date(editingTask.startDate)) {
+            return showToast('Bitiş tarihi başlangıç tarihinden önce olamaz.', 'error');
+        }
+
         try {
             await taskService.updateTask(editingTask.id, {
                 title: editingTask.title,

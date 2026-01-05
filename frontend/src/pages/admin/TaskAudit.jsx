@@ -66,6 +66,11 @@ const TaskAudit = () => {
 
     const handleUpdateTask = async (e) => {
         e.preventDefault();
+
+        if (editingTask.startDate && editingTask.dueDate && new Date(editingTask.dueDate) < new Date(editingTask.startDate)) {
+            return showToast('Bitiş tarihi başlangıç tarihinden önce olamaz.', 'error');
+        }
+
         try {
             await taskService.updateTask(editingTask.id, {
                 title: editingTask.title,

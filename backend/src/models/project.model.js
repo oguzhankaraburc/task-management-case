@@ -7,6 +7,12 @@ module.exports = (sequelize, Sequelize) => {
         description: {
             type: Sequelize.TEXT,
         },
+        startDate: {
+            type: Sequelize.DATE,
+        },
+        endDate: {
+            type: Sequelize.DATE,
+        },
     });
 
     return Project;

@@ -13,13 +13,21 @@ dist-ssr/
 .idea/
 *.swp
 *.swo
-*.DS_Store
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json (isteğe bağlı)
 
 # OS Files
 Thumbs.db
+.DS_Store
+
+# Backend Specifics
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Build outputs
+dist/
+dist-ssr/
+build/

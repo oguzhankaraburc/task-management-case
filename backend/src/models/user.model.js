@@ -21,6 +21,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.ENUM('Admin', 'User'),
             defaultValue: 'User',
         },
+        avatarUrl: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
     });
 
     return User;

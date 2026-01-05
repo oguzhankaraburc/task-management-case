@@ -1,6 +1,6 @@
 # Task Management 
 
-Bu proje, bir organizasyon içindeki projelerin ve görevlerin Rol Bazlı Yetkilendirme (RBAC) prensipleriyle yönetilmesini sağlayan bir Full-Stack uygulamadır. Admin kullanıcıları tüm sistemi yönetirken, standart kullanıcılar sadece kendilerine atanan işleri görebilir.
+Bu proje, bir organizasyon içindeki projelerin ve görevlerin Rol Bazlı Yetkilendirme (RBAC) prensipleriyle yönetilmesini sağlayan bir Full-Stack uygulamadır. Admin kullanıcıları tüm sistemi yönetirken, standart kullanıcılar sadece kendilerine atanan işleri görebilir.Uygulama, sadece görev takibi yapmakla kalmaz; verileri analiz ederek kullanıcı ve yöneticilere stratejik içgörüler sunar.
 
 ---
 
@@ -11,13 +11,15 @@ Bu proje, bir organizasyon içindeki projelerin ve görevlerin Rol Bazlı Yetkil
 - ** Admin:** Kullanıcı oluşturma, proje tanımlama ve tüm görevleri izleme.
 - ** User:** Kendine atanan projeleri görme, bu projeler altında görev oluşturma ve güncelleme.
 - ** Görev Yönetimi:** Öncelik (Low, Medium, High) ve Durum (Todo, In Progress, Done) takibi.
+- ** Gerçek Zamanlı Haberleşme: Socket.io entegrasyonu sayesinde bildirimler ve istatistik güncellemeleri sayfa yenilenmeden anlık olarak yansır.
+- ** Akıcı Kanban Board: "Optimistic UI" yaklaşımı ile gecikmesiz sürükle-bırak görev yönetimi. 
+- ** Gelişmiş Analiz Paneli: Recharts kütüphanesi ile modernize edilmiş, Admin ve User rollerine özel dinamik istatistik kartları ve grafikler.
 ---
 
 ##  Teknolojiler
 
-- **Backend:** Node.js, Express.js, PostgreSQL.
-- **Frontend:** React.js (Vite), Axios, Context API.
-- **Güvenlik:** Bcrypt.js (Şifreleme), JWT.
+- **Backend:** Node.js & Express ,PostgreSQL ,Socket.io,JWT & Bcrypt
+- **Frontend:** React.js (Vite), Tailwind CSS v4, Axios, Context API ,Recharts & Framer Motion
 
 ---
 
@@ -95,6 +97,16 @@ Seed script'ini çalıştırdıktan sonra şu bilgilerle giriş yaparak sistemi 
 
 ---
 
+## Ekran Görüntüleri
 
+| Giriş Ekranı (Karanlık) | Dashboard (Aydınlık) |
+| :---: | :---: |
+| ![Login Dark](./screenshots/login_dark.png) | ![Dashboard Light](./screenshots/dashboard_light.png) |
 
+| Kanban Board (Karanlık) | Proje Merkezi |
+| :---: | :---: |
+| ![Dashboard Dark](./screenshots/dashboard_dark.png) | ![Project Center](./screenshots/project_center.png) |
 
+| Profil Ayarları ve Özelleştirme |
+| :---: |
+| ![Profile Modal](./screenshots/profile_modal.png) |
